@@ -1,0 +1,62 @@
+﻿@page
+@model IndexModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<div class="text-left">
+    <p>Convert JSON text into Environment variable equivalents. The results would be suitable for setting in a Docker container to set or override 
+        configuration.</p>
+    <p>For example, in .NET Core, the <a href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.extensions.configuration.environmentvariablesextensions.addenvironmentvariables"><code>AddEnvironmentVariables</code></a> extension method
+        adds environment variables to the current configuration.</p>
+    <form method="post">
+
+        <div class="form-group">
+            <label for="Json">JSON</label><br />
+            <textarea asp-for="Json" cols="80" rows="10" class="text-monospace" onfocus="this.select();"></textarea><br />
+            <span asp-validation-for="Json" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <fieldset class="form-check" role="group" aria-label="Format choice">
+                <legend>Format</legend>
+
+                <label><input type="radio" name="Format" value="Docker" checked="@(Model.Format != "Yaml")"/> Docker</label>&nbsp;
+                <label><input type="radio" name="Format" value="Yaml" checked="@(Model.Format == "Yaml")"/> Yaml</label><br/>
+            </fieldset>
+            
+            <fieldset id="yaml-subformat" class="form-check" role="group">
+                <legend>Yaml Subformat</legend>
+
+                <label>@Html.RadioButtonFor(model => model.YamlFormat, "DockerCompose") Docker Compose</label>
+                <label>@Html.RadioButtonFor(model => model.YamlFormat, "Kubernetes") Kubernetes</label>
+                <label>@Html.RadioButtonFor(model => model.YamlFormat, "AzureAppSettings", new { @onclick="document.getElementById('Separator:Underscore').checked = true;"}) Azure App Settings (JSON)</label>
+            </fieldset>
+
+            <fieldset class="form-check">
+                <legend>Separator</legend>
+
+                <div class="btn-group" role="group" aria-label="Separator characters">
+                    <label><input type="radio" name="Separator" value="Colon" checked="@(Model.Separator != "Underscore")"/> Colon (:) </label>&nbsp;
+                    <label><input type="radio" name="Separator" value="Underscore" id="Separator:Underscore" checked="@(Model.Separator == "Underscore")"/> Underscores (__) </label><br/>
+                </div>
+
+            </fieldset>
+
+            <fieldset class="form-check">
+                <legend>Other options</legend>
+                <label><input type="checkbox" asp-for="IncludeEmpty"/> Include empty values</label>
+                <br/>
+                <label><input type="checkbox" asp-for="CapitalLetters" /> Use capital letters</label>
+                <br/>
+                <label><input type="checkbox" asp-for="ReplaceDots" /> Replace (.) by (_)</label>
+            </fieldset>
+
+            <input type="submit" value="Convert"/>
+        </div>
+        
+        <div class="form-group">
+            <label for="Environment">Environment</label><br />
+            <textarea id="Environment" class="text-monospace" style="white-space: pre; overflow: scroll" cols="80" rows="10" readonly="readonly" onfocus="this.select();">@Html.Raw(Html.Encode(Model.Environment).Replace(System.Environment.NewLine, "<br />"))</textarea>
+        </div>
+    </form>
+
+</div>
